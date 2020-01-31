@@ -1,7 +1,6 @@
 import pygame
 import time
 pygame.init()
-pygame.display.set_caption('Deano the Dinosaur')
 screen_height = 425
 screen_width = 500
 screen = pygame.display.set_mode((screen_width, screen_height))
@@ -20,13 +19,16 @@ dead_right_imgs = [pygame.image.load('dinos/DR'+str(x)+'.png') for x in range (1
 dead_left_imgs = [pygame.image.load('dinos/DL'+str(x)+'.png') for x in range (1,9)]
 dead_zombie_right_imgs = [pygame.image.load('zombies/DR'+str(x)+'.png') for x in range (1,13)]
 dead_zombie_left_imgs = [pygame.image.load('zombies/DL'+str(x)+'.png') for x in range (1,13)]
+coin_sound = pygame.mixer.Sound("dinos/coin_sound.wav")
+gameover_sound = pygame.mixer.Sound("dinos/timeup.wav")
+playerwins_sound = pygame.mixer.Sound("dinos/fireworks.wav")
 pygame.mixer.music.load("dinos/music.wav")
 pygame.mixer.music.set_volume(0.06)
 pygame.mixer.music.play(-1)
-coin_sound = pygame.mixer.Sound("dinos/coin_sound.wav")
-gameover_sound = pygame.mixer.Sound("dinos/timeup.wav")
+pygame.display.set_caption('Deano the Dinosaur')
+pygame.display.set_icon(idle_imgs[0])
 clock = pygame.time.Clock()
-reset_countdown = 5
+gameover = False
 time_left = 30
 
 class Hero():
@@ -85,7 +87,6 @@ class Enemy():
         self.isdead = False
         self.deadimgcount = 0
         self.counter = 0
-
 
 egglist = []
 hero = Hero(5, 250)
@@ -196,9 +197,13 @@ def redraw_resetting():
     screen.blit(gray_background,(0,0))
     for ledge in ledges:
         screen.blit(gray_ledgeimg, (ledge.x, ledge.y))
+    string = 'Player Wins!' if hero.coins == 3 else 'Player Loses!'
     font3 = pygame.font.Font(pygame.font.get_default_font(), 64)
-    text3 = font3.render(str(reset_countdown), True, (0,0,0))
+    text3 = font3.render(string, True, (0,0,0))
     screen.blit(text3, ((screen_width/2)-(text3.get_width()/2), (screen_height/2)-(text3.get_height()/2)))
+    font4 = pygame.font.Font(pygame.font.get_default_font(), 18)
+    text4 = font4.render("(Press Enter to Respawn)", True, (0,0,0))
+    screen.blit(text4, ((screen_width/2)-(text4.get_width()/2), (screen_height/2)-(text3.get_height()/2)+75))
     pygame.display.update()
     return
         
@@ -306,6 +311,7 @@ while game_running:
         if hero.isdead == False:
             pygame.mixer.Sound.play(gameover_sound)
         hero.isdead = True
+        gameover = True
         pygame.mixer.music.stop()
 
     #enemy
@@ -368,15 +374,21 @@ while game_running:
                             enemy.isdead = True
         else:
             egglist.remove(egg)
-
+    #end game
+    if hero.coins == 3:
+        if gameover == False:
+            pygame.mixer.Sound.play(playerwins_sound)
+        gameover = True
+        pygame.mixer.music.stop()
+        
     #resets game
-    if keys[pygame.K_RETURN] and hero.isdead:
-        while reset_countdown > 0:
-            redraw_resetting()
-            time.sleep(1)
-            reset_countdown -= 1  
+    if keys[pygame.K_RETURN] and gameover == True:
         reset()
-        reset_countdown = 5    
+        gameover = False
         pygame.mixer.music.play(-1)
 
-    redraw()
+    #redraws background
+    if gameover == True:
+        redraw_resetting()
+    else:
+        redraw()
