@@ -29,7 +29,7 @@ pygame.display.set_caption('Deano the Dinosaur')
 pygame.display.set_icon(idle_imgs[0])
 clock = pygame.time.Clock()
 gameover = False
-time_left = 30
+time_left = 3
 
 class Hero():
     def __init__(self, x, y):
@@ -212,9 +212,10 @@ while game_running:
     #timer
     clock.tick(30)
     if time_left <= 0:
-        if hero.isdead == False:
+        if hero.isdead == False and gameover == False:
             pygame.mixer.Sound.play(gameover_sound)
         hero.isdead = True
+        gameover = True
         pygame.mixer.music.stop()
     else:
         if hero.isdead == False:
@@ -308,7 +309,7 @@ while game_running:
 
     #ends game upon collision
     if hero.collision:
-        if hero.isdead == False:
+        if hero.isdead == False and gameover == False:
             pygame.mixer.Sound.play(gameover_sound)
         hero.isdead = True
         gameover = True
