@@ -29,7 +29,7 @@ pygame.display.set_caption('Deano the Dinosaur')
 pygame.display.set_icon(idle_imgs[0])
 clock = pygame.time.Clock()
 gameover = False
-time_left = 3
+time_left = 30
 
 class Hero():
     def __init__(self, x, y):
